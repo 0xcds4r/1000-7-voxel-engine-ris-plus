@@ -25,7 +25,13 @@ public:
 	mat4 rotation;
 	Camera(vec3 position, float fov);
 
+	void process(float speed, float delta);
+	void processRotation();
+	vec3 findDirent();
 	void rotate(float x, float y, float z);
+	void setPos(float x, float y, float z);
+	vec3 getPos();
+	int getDistanceFromPoint(int X, int Y, int Z);
 
 	mat4 getProjection();
 	mat4 getView();

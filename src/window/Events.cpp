@@ -10,7 +10,7 @@ float Events::deltaX = 0.0f;
 float Events::deltaY = 0.0f;
 float Events::x = 0.0f;
 float Events::y = 0.0f;
-bool Events::_cursor_locked = true;
+bool Events::_cursor_locked = false;
 bool Events::_cursor_started = false;
 
 #define _MOUSE_BUTTONS 1024
@@ -102,4 +102,9 @@ void Events::pullEvents(){
 	deltaX = 0.0f;
 	deltaY = 0.0f;
 	glfwPollEvents();
+}
+
+bool Events::isCursorEnabled()
+{
+	return !_cursor_locked;
 }

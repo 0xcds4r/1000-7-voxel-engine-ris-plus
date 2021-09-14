@@ -26,6 +26,14 @@ public:
 	Chunks(int w, int h, int d, int ox, int oy, int oz);
 	~Chunks();
 
+	size_t getVolume() {
+		return volume;
+	};
+
+	Chunk* getChunk(int pos) {
+		return chunks[pos];
+	};
+
 	Chunk* getChunk(int x, int y, int z);
 	Chunk* getChunkByVoxel(int x, int y, int z);
 	voxel* get(int x, int y, int z);

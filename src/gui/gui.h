@@ -24,6 +24,7 @@ public:
 	static void draw();
 	static void drawDebug();
 	static void render();
+	static void drawCrosshair();
 
 	static ImFont* getFont();
 };

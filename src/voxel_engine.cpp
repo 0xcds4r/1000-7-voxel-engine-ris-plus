@@ -29,7 +29,10 @@ using namespace glm;
 #include "voxels/Chunk.h"
 #include "voxels/Chunks.h"
 #include "voxels/Block.h"
+#include "voxels/Blocks.h"
+#include "voxels/Items.h"
 #include "voxels/WorldGenerator.h"
+#include "voxels/Level.h"
 #include "files/files.h"
 #include "files/WorldFiles.h"
 #include "lighting/LightSolver.h"
@@ -62,49 +65,21 @@ Mesh *crosshair;
 Shader *shader, *linesShader, *crosshairShader;
 Texture *texture;
 LineBatch *lineBatch;
+Hitbox* hitbox = 0;
+Camera* camera = 0;
 
-Chunks* chunks;
-WorldFiles* wfile;
+bool bIgnoreControllable = false;
 
 // All in-game definitions (blocks, items, etc..)
-void setup_definitions() {
-	// AIR
-	Block* block = new Block(0,0);
-	block->drawGroup = 1;
-	block->lightPassing = true;
-	block->obstacle = false;
-	Block::blocks[block->id] = block;
-
-	// STONE
-	block = new Block(1,2);
-	Block::blocks[block->id] = block;
-
-	// GRASS
-	block = new Block(2,4);
-	block->textureFaces[2] = 2;
-	block->textureFaces[3] = 1;
-	Block::blocks[block->id] = block;
-
-	// LAMP
-	block = new Block(3,3);
-	block->emission[0] = 15;
-	block->emission[1] = 14;
-	block->emission[2] = 13;
-	Block::blocks[block->id] = block;
-
-	// GLASS
-	block = new Block(4,5);
-	block->drawGroup = 2;
-	block->lightPassing = true;
-	Block::blocks[block->id] = block;
-
-	// PLANKS
-	block = new Block(5,6);
-	Block::blocks[block->id] = block;
+void setup_definitions() 
+{
+	Blocks::initialize();
+	Items::initialize();
 }
 
 // Shaders, textures, renderers
-int initialize_assets() {
+int initialize_assets() 
+{
 	shader = load_shader("res/main.glslv", "res/main.glslf");
 	if (shader == nullptr){
 		std::cerr << "failed to load shader" << std::endl;
@@ -142,6 +117,7 @@ uint32_t GetTickCount()
     return duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
 }
 
+bool bDayStatus = true;
 void draw_world(Camera* camera)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -152,7 +128,8 @@ void draw_world(Camera* camera)
 	shader->uniform1f("u_gamma", 1.6f);
 
 	// 0.1*2,0.15*2,0.2*2
-	float t = 1.770f; // 1.770 day / 0.410 night / 0.820 sunrise / 1.035 midnight
+	float t = bDayStatus ? 1.770f : 0.410f; 
+	// 1.770 day / 0.410 night / 0.820 sunrise / 1.035 midnight
 	// day optimal: 1.370, 1.035, 0.414
 	// night optimal: 0.00, 0.314, 0.414
 	// midnight optimal: 1.200, 0.714, 0.114
@@ -162,14 +139,14 @@ void draw_world(Camera* camera)
 	texture->bind();
 	mat4 model(1.0f);
 
-	for (size_t i = 0; i < chunks->volume; i++)
+	for (size_t i = 0; i < Level::getChunks()->volume; i++)
 	{
-		Chunk* chunk = chunks->chunks[i];
+		Chunk* chunk = Level::getChunks()->chunks[i];
 		if (chunk == nullptr) {
 			continue;
 		}
 
-		Mesh* mesh = chunks->meshes[i];
+		Mesh* mesh = Level::getChunks()->meshes[i];
 		if (mesh == nullptr) {
 			continue;
 		}
@@ -179,8 +156,8 @@ void draw_world(Camera* camera)
 		mesh->draw(GL_TRIANGLES);
 	}
 
-	crosshairShader->use();
-	crosshair->draw(GL_LINES);
+	// crosshairShader->use();
+	// crosshair->draw(GL_LINES);
 
 	linesShader->use();
 	linesShader->uniformMatrix("u_projview", camera->getProjection()*camera->getView());
@@ -189,57 +166,42 @@ void draw_world(Camera* camera)
 }
 
 // Deleting GL objects like shaders, textures
-void finalize_assets(){
+void finalize_assets()
+{
 	delete shader;
 	delete texture;
-	delete crosshair;
-	delete crosshairShader;
+	// delete crosshair;
+	// delete crosshairShader;
 	delete linesShader;
 	delete lineBatch;
 }
 
-// Save all world data to files
-void write_world(){
-	for (unsigned int i = 0; i < chunks->volume; i++){
-		Chunk* chunk = chunks->chunks[i];
-		if (chunk == nullptr)
-			continue;
-		wfile->put((const char*)chunk->voxels, chunk->x, chunk->z);
-	}
-
-	wfile->write();
-}
-
-// Deleting world data from memory
-void close_world(){
-	delete chunks;
-	delete wfile;
-}
-
-int main() {
+int fLastDistanceBlockBP = 0.0f;
+int main() 
+{
 	setup_definitions();
 
-	Window::initialize(WIDTH, HEIGHT, "Window 2.0");
+	Window::initialize(WIDTH, HEIGHT, "MCVE");
 	Events::initialize();
+	Events::toogleCursor();
 
-	int result = initialize_assets();
-	if (result){
+	if (initialize_assets())
+	{
 		Window::terminate();
-		return result;
+		return 1;
 	}
 
-	wfile = new WorldFiles("world/", REGION_VOL * (CHUNK_VOL * 2 + 8));
-	chunks = new Chunks(32,1,32, 0,0,0);
+	Level::initialize();
+
 	VoxelRenderer renderer(1024*1024);
 	lineBatch = new LineBatch(4096);
 	PhysicsSolver physics(vec3(0,-16.0f,0));
 
-	Lighting::initialize(chunks);
 	gui::initialize();
 
-	crosshair = new Mesh(vertices, 4, attrs);
-	Camera* camera = new Camera(vec3(32,32,32), radians(90.0f));
-	Hitbox* hitbox = new Hitbox(vec3(32,32,32), vec3(0.2f,0.9f,0.2f));
+	// crosshair = new Mesh(vertices, 4, attrs);
+	camera = new Camera(vec3(32,32,32), radians(90.0f));
+	hitbox = new Hitbox(vec3(32,32,32), vec3(0.2f,0.9f,0.2f));
 
 	float lastTime = glfwGetTime();
 	float delta = 0.0f;
@@ -249,10 +211,13 @@ int main() {
 
 	float playerSpeed = 4.0f;
 
-	int choosenBlock = 1;
+	int choosenBlock = 0;
 	long frame = 0;
 
-	glfwSwapInterval(0); // vsync
+	int iBreakPutSpeed = 0;	
+	bool bBreak = false;
+
+	glfwSwapInterval(0); // fuck down vsync plz
 
 	while (!Window::isShouldClose())
 	{
@@ -260,19 +225,24 @@ int main() {
 		float currentTime = glfwGetTime();
 		delta = currentTime - lastTime;
 		lastTime = currentTime;
-
-		bool bIgnoreControllable = false;
-
-		if(chat::isActive()) {
-			bIgnoreControllable = true;
-		}
+		bIgnoreControllable = (Events::isCursorEnabled() || chat::isActive()) ? true : false;
 		
-		if (Events::jpressed(GLFW_KEY_ESCAPE)){
-			Window::setShouldClose(true);
+		if (Events::jpressed(GLFW_KEY_ESCAPE))
+		{
+			if(!chat::isActive()) 
+			{
+				Window::setShouldClose(true);
+			}
+			else 
+			{
+				Events::toogleCursor();	
+				chat::toggle();
+			}
 		}
 
-		if (Events::jpressed(GLFW_KEY_TAB) ){
-			Events::toogleCursor();
+		if(Events::jpressed(GLFW_KEY_T) && !chat::isActive())
+		{
+			Events::toogleCursor();	
 			chat::toggle();
 		}
 
@@ -289,107 +259,87 @@ int main() {
 		float speed = playerSpeed;
 		int substeps = (int)(delta * 1000);
 		substeps = (substeps <= 0 ? 1 : (substeps > 100 ? 100 : substeps));
-		physics.step(chunks, hitbox, delta, substeps, shift);
-		camera->position.x = hitbox->position.x;
-		camera->position.y = hitbox->position.y + 0.5f;
-		camera->position.z = hitbox->position.z;
+		physics.step(Level::getChunks(), hitbox, delta, substeps, shift);
+		camera->process(speed, delta);
 
-		float dt = min(1.0f, delta * 16);
-		if (shift){
-			speed *= 0.25f;
-			camera->position.y -= 0.2f;
-			camera->zoom = 0.9f * dt + camera->zoom * (1.0f - dt);
-		} else if (sprint){
-			speed *= 1.5f;
-			camera->zoom = 1.1f * dt + camera->zoom * (1.0f - dt);
-		} else {
-			camera->zoom = dt + camera->zoom * (1.0f - dt);
-		}
-		if (Events::pressed(GLFW_KEY_SPACE) && hitbox->grounded){
+		if (Events::pressed(GLFW_KEY_SPACE) && hitbox->grounded && !bIgnoreControllable){
 			hitbox->velocity.y = 6.0f;
 		}
 
 		vec3 dir(0,0,0);
-
-		if (Events::pressed(GLFW_KEY_W) && !bIgnoreControllable){
-			dir.x += camera->dir.x;
-			dir.z += camera->dir.z;
-		}
-		if (Events::pressed(GLFW_KEY_S) && !bIgnoreControllable){
-			dir.x -= camera->dir.x;
-			dir.z -= camera->dir.z;
-		}
-		if (Events::pressed(GLFW_KEY_D) && !bIgnoreControllable){
-			dir.x += camera->right.x;
-			dir.z += camera->right.z;
-		}
-		if (Events::pressed(GLFW_KEY_A) && !bIgnoreControllable){
-			dir.x -= camera->right.x;
-			dir.z -= camera->right.z;
-		}
-	
-		if (length(dir) > 0.0f) {
-			dir = normalize(dir);
-		}
-
+		dir = camera->findDirent();
 		hitbox->velocity.x = dir.x * speed;
 		hitbox->velocity.z = dir.z * speed;
 
-		chunks->setCenter(wfile, camera->position.x,0,camera->position.z);
-		chunks->_buildMeshes(&renderer);
-		chunks->loadVisible(wfile);
+		Level::getChunks()->setCenter(Level::getData(), camera->position.x, 0, camera->position.z);
+		Level::getChunks()->_buildMeshes(&renderer);
+		Level::getChunks()->loadVisible(Level::getData());
 
-		if (Events::_cursor_locked)
-		{
-			camY += -Events::deltaY / Window::height * 2;
-			camX += -Events::deltaX / Window::height * 2;
-
-			if (camY < -radians(89.0f)){
-				camY = -radians(89.0f);
-			}
-
-			if (camY > radians(89.0f)){
-				camY = radians(89.0f);
-			}
-
-			camera->rotation = mat4(1.0f);
-			camera->rotate(camY, camX, 0);
+		if (!Events::isCursorEnabled()) {
+			camera->processRotation();
 		}
 
+		static uint32_t dwLastMouseBreakPutTick = GetTickCount();
+
+		if(GetTickCount() - dwLastMouseBreakPutTick >= 200 - iBreakPutSpeed)
 		{
 			vec3 end;
 			vec3 norm;
 			vec3 iend;
-			voxel* vox = chunks->rayCast(camera->position, camera->front, 10.0f, end, norm, iend);
+			voxel* vox = Level::getChunks()->rayCast(camera->position, camera->front, 10.0f, end, norm, iend);
+
+			static int iBreakDistance = 7;
+			static int iPutDistance = 7;
 
 			if (vox != nullptr)
 			{
-				lineBatch->box(iend.x+0.5f, iend.y+0.5f, iend.z+0.5f, 1.005f,1.005f,1.005f, 0,0,0,0.5f);
+				fLastDistanceBlockBP = camera->getDistanceFromPoint((int)iend.x, (int)iend.y, (int)iend.z);
+				if(fLastDistanceBlockBP <= iBreakDistance && fLastDistanceBlockBP <= iPutDistance) {
+					lineBatch->box(iend.x + 0.5f, iend.y + 0.5f, iend.z + 0.5f, 1.005f, 1.005f, 1.005f, 0, 0, 0, 0.5f);
+				}
 
-				if (Events::jclicked(GLFW_MOUSE_BUTTON_1) && !bIgnoreControllable)
+				if (Events::clicked(GLFW_MOUSE_BUTTON_1) && !bIgnoreControllable && fLastDistanceBlockBP <= iBreakDistance)
 				{
 					int x = (int)iend.x;
 					int y = (int)iend.y;
 					int z = (int)iend.z;
 
-					chunks->set(x,y,z, 0);
+					Level::setBlock(x, y, z, 0);
 
-					Lighting::onBlockSet(x,y,z,0);
+					if(!bBreak) {
+						iBreakPutSpeed = 0;	
+					}
+
+					if(iBreakPutSpeed < 50) {
+						iBreakPutSpeed += 5;
+					}
+
+					bBreak = true;
+					dwLastMouseBreakPutTick = GetTickCount();
 				}
 
-				if (Events::jclicked(GLFW_MOUSE_BUTTON_2) && !bIgnoreControllable)
+				else if (Events::clicked(GLFW_MOUSE_BUTTON_2) && !bIgnoreControllable && fLastDistanceBlockBP <= iPutDistance)
 				{
 					int x = (int)(iend.x)+(int)(norm.x);
 					int y = (int)(iend.y)+(int)(norm.y);
 					int z = (int)(iend.z)+(int)(norm.z);
 
-					if (!physics.isBlockInside(x,y,z, hitbox))
+					if (!physics.isBlockInside(x, y, z, hitbox)) 
 					{
-						chunks->set(x, y, z, choosenBlock);
+						if(bBreak) {
+							iBreakPutSpeed = 0;	
+						}
 
-						Lighting::onBlockSet(x,y,z, choosenBlock);
+						if(iBreakPutSpeed < 50) {
+							iBreakPutSpeed += 5;
+						}
+
+						bBreak = false;
+						Level::setBlock(x, y, z, choosenBlock);
+						dwLastMouseBreakPutTick = GetTickCount();
 					}
 				}
+				else iBreakPutSpeed = 0;
 			}
 		}
 
@@ -405,8 +355,8 @@ int main() {
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
-	write_world();
-	close_world();
+	Level::writeData();
+	Level::closeData();
 
 	Lighting::finalize();
 	finalize_assets();

@@ -11,6 +11,8 @@ public:
 	static void draw();
 	static bool isActive();
 	static void toggle();
+	static void addChar(const char* c);
+	static void backspaceCheck();
 	
 };
 

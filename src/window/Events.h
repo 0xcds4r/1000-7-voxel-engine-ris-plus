@@ -27,6 +27,7 @@ public:
 	static bool jclicked(int button);
 
 	static void toogleCursor();
+	static bool isCursorEnabled();
 };
 
 #endif /* WINDOW_EVENTS_H_ */

@@ -1,6 +1,13 @@
 #include "gui.h"
 
 #include "../window/Window.h"
+#include "../window/Camera.h"
+#include "../window/Events.h"
+
+// GLM
+#include "glm/glm.hpp"
+#include "glm/ext.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 #include <algorithm>
 #include <string>
@@ -137,13 +144,18 @@ void gui::drawText(float font_size, ImFont* font, ImVec2& posCur, ImU32 col, boo
     ImGui::GetBackgroundDrawList()->AddText(font, font_size, posCur, col, text_begin, text_end);
 }
 
+bool bDebugDraw = false;
+extern int fLastDistanceBlockBP;
+extern Camera* camera;
 void gui::drawDebug()
 {
 	ImGuiIO& io = ImGui::GetIO();
 	ImVec2 vecText = ImVec2(133, 555);
 
+	vec3 vecCam = camera->getPos();
+
 	char frameBufferInfo[0xFF] = { '\0' };
-	sprintf(frameBufferInfo, "Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	sprintf(frameBufferInfo, "Cursor state: %s / X: %.2f Y: %.2f Z: %.2f\nLBA dist: %d / Application average %.3f ms/frame (%.1f FPS)", Events::isCursorEnabled() ? "enabled" : "disabled", vecCam.x, vecCam.y, vecCam.z, fLastDistanceBlockBP, 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	gui::drawText(30.0f, gui::getFont(), vecText, ImColor(255, 222, 255, 255), true, frameBufferInfo);
 }
 
@@ -151,8 +163,32 @@ void gui::draw()
 {
 	ImGuiIO& io = ImGui::GetIO();
 
-	gui::drawDebug();
+    gui::drawCrosshair();
+
+	if(bDebugDraw)
+		gui::drawDebug();
+	
 	chat::draw();
+}
+
+void gui::drawCrosshair()
+{
+    ImGuiIO& io = ImGui::GetIO();
+
+    float fCrosshairSizeX = 5.0f;
+    float fCrosshairSizeY = 5.0f;
+
+    // horizontal line
+    ImVec2 vecFrom = ImVec2(io.DisplaySize.x / 2 - fCrosshairSizeX, io.DisplaySize.y / 2);
+    ImVec2 vecTo = ImVec2(io.DisplaySize.x / 2 + fCrosshairSizeX, io.DisplaySize.y / 2);
+
+    ImGui::GetBackgroundDrawList()->AddLine(vecFrom, vecTo, ImColor(255, 255, 255, 255), 5.0f);
+
+    // vertical line
+    vecFrom = ImVec2(io.DisplaySize.x / 2, io.DisplaySize.y / 2 + fCrosshairSizeY);
+    vecTo = ImVec2(io.DisplaySize.x / 2, io.DisplaySize.y / 2 - fCrosshairSizeY);
+
+    ImGui::GetBackgroundDrawList()->AddRectFilled(vecFrom, vecTo, ImColor(255, 255, 255, 255), 5.0f);
 }
 
 void gui::render()
