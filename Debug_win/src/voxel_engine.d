@@ -240,15 +240,20 @@ src/voxel_engine.o: ../src/voxel_engine.cpp ../src/glm/glm.hpp \
  ../src/window/Window.h ../src/window/Events.h ../src/window/Window.h \
  ../src/window/Camera.h ../src/loaders/png_loading.h \
  ../src/voxels/voxel.h ../src/voxels/Chunk.h ../src/voxels/Chunks.h \
- ../src/voxels/Block.h ../src/voxels/WorldGenerator.h \
- ../src/files/files.h ../src/files/WorldFiles.h \
- ../src/lighting/LightSolver.h ../src/lighting/Lightmap.h \
- ../src/lighting/../voxels/Chunk.h ../src/lighting/Lighting.h \
- ../src/physics/Hitbox.h ../src/physics/PhysicsSolver.h ../src/gui/gui.h \
+ ../src/voxels/Block.h ../src/voxels/Blocks.h ../src/voxels/Items.h \
+ ../src/voxels/WorldGenerator.h ../src/voxels/Chunk.h \
+ ../src/voxels/Chunks.h ../src/voxels/Level.h \
+ ../src/voxels/../lighting/Lighting.h ../src/voxels/../files/WorldFiles.h \
+ ../src/voxels/../voxels/Chunk.h ../src/files/files.h \
+ ../src/files/WorldFiles.h ../src/lighting/LightSolver.h \
+ ../src/lighting/Lightmap.h ../src/lighting/../voxels/Chunk.h \
+ ../src/lighting/Lighting.h ../src/physics/Hitbox.h \
+ ../src/physics/PhysicsSolver.h ../src/gui/gui.h \
  ../src/gui/../imgui/imgui.h ../src/gui/../imgui/imconfig.h \
  ../src/gui/../imgui/imgui_internal.h \
  ../src/gui/../imgui/imstb_textedit.h ../src/gui/../imgui_impl_glfw.h \
- ../src/gui/../imgui_impl_opengl3.h ../src/gui/chat.h ../src/gui/chat.h
+ ../src/gui/../imgui_impl_opengl3.h ../src/gui/chat.h ../src/gui/chat.h \
+ ../src/voxels/TimeCycle.h ../src/voxels/../graphics/Shader.h
 
 ../src/glm/glm.hpp:
 
@@ -840,7 +845,23 @@ src/voxel_engine.o: ../src/voxel_engine.cpp ../src/glm/glm.hpp \
 
 ../src/voxels/Block.h:
 
+../src/voxels/Blocks.h:
+
+../src/voxels/Items.h:
+
 ../src/voxels/WorldGenerator.h:
+
+../src/voxels/Chunk.h:
+
+../src/voxels/Chunks.h:
+
+../src/voxels/Level.h:
+
+../src/voxels/../lighting/Lighting.h:
+
+../src/voxels/../files/WorldFiles.h:
+
+../src/voxels/../voxels/Chunk.h:
 
 ../src/files/files.h:
 
@@ -875,3 +896,7 @@ src/voxel_engine.o: ../src/voxel_engine.cpp ../src/glm/glm.hpp \
 ../src/gui/chat.h:
 
 ../src/gui/chat.h:
+
+../src/voxels/TimeCycle.h:
+
+../src/voxels/../graphics/Shader.h:

@@ -1,6 +1,6 @@
 src/voxels/WorldGenerator.o: ../src/voxels/WorldGenerator.cpp \
- ../src/voxels/WorldGenerator.h ../src/voxels/voxel.h \
- ../src/voxels/Chunk.h ../src/voxels/../glm/glm.hpp \
+ ../src/voxels/WorldGenerator.h ../src/voxels/Chunk.h \
+ ../src/voxels/Chunks.h ../src/voxels/../glm/glm.hpp \
  ../src/voxels/../glm/detail/_fixes.hpp \
  ../src/voxels/../glm/detail/setup.hpp \
  ../src/voxels/../glm/detail/../simd/platform.h \
@@ -138,7 +138,9 @@ src/voxels/WorldGenerator.o: ../src/voxels/WorldGenerator.cpp \
  ../src/voxels/../glm/detail/type_half.hpp \
  ../src/voxels/../glm/detail/type_half.inl \
  ../src/voxels/../glm/integer.hpp \
- ../src/voxels/../glm/detail/func_integer.inl \
+ ../src/voxels/../glm/detail/func_integer.inl ../src/voxels/voxel.h \
+ ../src/voxels/Level.h ../src/voxels/../lighting/Lighting.h \
+ ../src/voxels/../files/WorldFiles.h ../src/voxels/../voxels/Chunk.h \
  ../src/voxels/../glm/gtc/noise.hpp \
  ../src/voxels/../glm/gtc/../detail/setup.hpp \
  ../src/voxels/../glm/gtc/../detail/_noise.hpp \
@@ -146,9 +148,9 @@ src/voxels/WorldGenerator.o: ../src/voxels/WorldGenerator.cpp \
 
 ../src/voxels/WorldGenerator.h:
 
-../src/voxels/voxel.h:
-
 ../src/voxels/Chunk.h:
+
+../src/voxels/Chunks.h:
 
 ../src/voxels/../glm/glm.hpp:
 
@@ -431,6 +433,16 @@ c:\users\dungeon\ master\documents\voxelengine-cpp-main\src\glm\detail/func_vect
 ../src/voxels/../glm/integer.hpp:
 
 ../src/voxels/../glm/detail/func_integer.inl:
+
+../src/voxels/voxel.h:
+
+../src/voxels/Level.h:
+
+../src/voxels/../lighting/Lighting.h:
+
+../src/voxels/../files/WorldFiles.h:
+
+../src/voxels/../voxels/Chunk.h:
 
 ../src/voxels/../glm/gtc/noise.hpp:
 

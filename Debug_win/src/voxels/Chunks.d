@@ -142,7 +142,7 @@ src/voxels/Chunks.o: ../src/voxels/Chunks.cpp ../src/voxels/Chunks.h \
  ../src/voxels/../lighting/../voxels/Chunk.h \
  ../src/voxels/../files/WorldFiles.h ../src/voxels/../lighting/Lighting.h \
  ../src/voxels/../graphics/VoxelRenderer.h \
- ../src/voxels/../graphics/Mesh.h
+ ../src/voxels/../graphics/Mesh.h ../src/voxels/../physics/Random.h
 
 ../src/voxels/Chunks.h:
 
@@ -447,3 +447,5 @@ c:\users\dungeon\ master\documents\voxelengine-cpp-main\src\glm\detail/func_vect
 ../src/voxels/../graphics/VoxelRenderer.h:
 
 ../src/voxels/../graphics/Mesh.h:
+
+../src/voxels/../physics/Random.h:

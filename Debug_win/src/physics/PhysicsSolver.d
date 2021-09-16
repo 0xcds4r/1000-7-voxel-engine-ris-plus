@@ -277,7 +277,9 @@ src/physics/PhysicsSolver.o: ../src/physics/PhysicsSolver.cpp \
  ../src/physics/../glm/./gtc/type_ptr.hpp \
  ../src/physics/../glm/./gtc/type_ptr.inl \
  ../src/physics/../glm/./gtc/ulp.hpp ../src/physics/../glm/./gtc/ulp.inl \
- ../src/physics/Hitbox.h ../src/physics/../voxels/Chunks.h
+ ../src/physics/Hitbox.h ../src/physics/../voxels/Chunks.h \
+ ../src/physics/../window/Events.h ../src/physics/../window/Window.h \
+ ../src/physics/../window/Camera.h ../src/physics/../gui/chat.h
 
 ../src/physics/PhysicsSolver.h:
 
@@ -846,3 +848,11 @@ c:\users\dungeon\ master\documents\voxelengine-cpp-main\src\glm\detail/func_vect
 ../src/physics/Hitbox.h:
 
 ../src/physics/../voxels/Chunks.h:
+
+../src/physics/../window/Events.h:
+
+../src/physics/../window/Window.h:
+
+../src/physics/../window/Camera.h:
+
+../src/physics/../gui/chat.h:
