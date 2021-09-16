@@ -36,6 +36,11 @@ void Level::setBlock(int x, int y, int z, int block)
 	Lighting::onBlockSet(x, y, z, block);
 }
 
+void Level::growTree(int x, int y, int z)
+{
+	Level::getChunks()->createTree(x, y, z);
+}
+
 Chunks* Level::getChunks()
 {
 	return Level::chunks;

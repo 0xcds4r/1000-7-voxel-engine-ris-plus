@@ -317,6 +317,43 @@ void Chunks::setCenter(WorldFiles* worldFiles, int x, int y, int z) {
 		translate(worldFiles, cx,cy,cz);
 }
 
+#include "../physics/Random.h"
+void Chunks::createTree(int real_x, int real_y, int real_z)
+{
+	if(real_y > 0) 
+	{
+		int iTrunkBlock = 5, iLeafBlock = 1;
+
+		Random random;
+		random.initialize(0x3FE00FFA);
+		int iTreeHeight = random.nextBoundedInt(3) + 5;
+
+		for(int iTH = 1; iTH < iTreeHeight; iTH++) 
+		{
+			this->set(real_x, real_y + iTH, real_z, iTrunkBlock);
+		}
+
+		for(int yy = real_y - 3 + iTreeHeight; yy <= real_y + iTreeHeight; ++yy)
+		{
+			int yOff = yy - (real_y + iTreeHeight);
+			int mid = (1 - yOff / 2);
+			for(int xx = real_x - mid; xx <= real_x + mid; ++xx)
+			{
+				int xOff = abs(xx - real_x);
+				for(int zz = real_z - mid; zz <= real_z + mid; ++zz)
+				{
+					int zOff = abs(zz - real_z);
+					if(xOff == mid and zOff == mid and (yOff == 0 or random.nextBoundedInt(2) == 0)){
+						continue;
+					}
+
+					this->set(xx, yy, zz, iLeafBlock);
+				}
+			}
+		}
+	}
+}
+
 bool Chunks::loadVisible(WorldFiles* worldFiles){
 	int nearX = 0;
 	int nearY = 0;
@@ -348,12 +385,35 @@ bool Chunks::loadVisible(WorldFiles* worldFiles){
 	if (chunk != nullptr)
 		return false;
 	chunk = new Chunk(nearX+ox,nearY+oy,nearZ+oz);
-	if (!worldFiles->getChunk(chunk->x, chunk->z, (char*)chunk->voxels)){
-		WorldGenerator::generate(chunk->voxels, chunk->x, chunk->y, chunk->z);
+	if (!worldFiles->getChunk(chunk->x, chunk->z, (char*)chunk->voxels))
+	{
+		WorldGenerator::generate(this, chunk->voxels, chunk->x, chunk->y, chunk->z);
 	}
 
 	chunks[index] = chunk;
 	Lighting::onChunkLoaded(ox+nearX, oy+nearY, oz+nearZ);
+
+	// Trees
+	for (int z = 0; z < CHUNK_D; z++)
+	{
+		for (int x = 0; x < CHUNK_W; x++)
+		{
+			for (int y = 0; y < CHUNK_H; y++)
+			{
+				int rY = y + chunk->y * CHUNK_H;
+
+				int iTreesAmount = 5;
+				if(rY == 15 && rand() % 1000 < iTreesAmount) 
+				{
+					this->createTree(
+						x + chunk->x * CHUNK_W,
+						rY, 
+						z + chunk->z * CHUNK_D);
+				}
+			}
+		}
+	}
+
 	return true;
 }
 

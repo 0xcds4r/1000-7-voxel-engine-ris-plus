@@ -26,13 +26,19 @@ public:
 	Chunks(int w, int h, int d, int ox, int oy, int oz);
 	~Chunks();
 
-	size_t getVolume() {
+	size_t getChunkVolume() {
 		return volume;
 	};
 
-	Chunk* getChunk(int pos) {
+	Chunk* getChunkByPos(int pos) {
 		return chunks[pos];
 	};
+
+	Mesh* getChunkMeshByPos(int pos) {
+		return meshes[pos];
+	};
+
+	void createTree(int real_x, int real_y, int real_z);
 
 	Chunk* getChunk(int x, int y, int z);
 	Chunk* getChunkByVoxel(int x, int y, int z);

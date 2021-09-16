@@ -13,6 +13,7 @@ public:
 	~Texture();
 
 	void bind();
+	void bindCubeMap();
 	void reload(unsigned char* data);
 };
 

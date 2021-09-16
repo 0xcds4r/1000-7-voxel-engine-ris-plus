@@ -62,26 +62,26 @@ int attrs[] = {
 };
 
 Mesh *crosshair;
-Shader *shader, *linesShader, *crosshairShader;
-Texture *texture;
+Shader *shader, *linesShader, *crosshairShader, *shaderEntity;
+Texture *texture, *textureEntity;
 LineBatch *lineBatch;
 Hitbox* hitbox = 0;
 Camera* camera = 0;
 
 bool bIgnoreControllable = false;
 
-// All in-game definitions (blocks, items, etc..)
-void setup_definitions() 
-{
-	Blocks::initialize();
-	Items::initialize();
-}
-
 // Shaders, textures, renderers
 int initialize_assets() 
 {
 	shader = load_shader("res/main.glslv", "res/main.glslf");
 	if (shader == nullptr){
+		std::cerr << "failed to load shader" << std::endl;
+		Window::terminate();
+		return 1;
+	}
+
+	shaderEntity = load_shader("res/main.glslv", "res/main.glslf"); // ~
+	if (shaderEntity == nullptr){
 		std::cerr << "failed to load shader" << std::endl;
 		Window::terminate();
 		return 1;
@@ -108,6 +108,15 @@ int initialize_assets()
 		Window::terminate();
 		return 1;
 	}
+
+	textureEntity = load_texture("res/img.png"); // ~
+	if (textureEntity == nullptr){
+		std::cerr << "failed to load texture" << std::endl;
+		delete shaderEntity;
+		Window::terminate();
+		return 1;
+	}
+
 	return 0;
 }
 
@@ -117,36 +126,30 @@ uint32_t GetTickCount()
     return duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
 }
 
+#include "voxels/TimeCycle.h"
+
 bool bDayStatus = true;
 void draw_world(Camera* camera)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		
 	// Draw VAO
 	shader->use();
 	shader->uniformMatrix("u_projview", camera->getProjection()*camera->getView());
-	shader->uniform1f("u_gamma", 1.6f);
 
-	// 0.1*2,0.15*2,0.2*2
-	float t = bDayStatus ? 1.770f : 0.410f; 
-	// 1.770 day / 0.410 night / 0.820 sunrise / 1.035 midnight
-	// day optimal: 1.370, 1.035, 0.414
-	// night optimal: 0.00, 0.314, 0.414
-	// midnight optimal: 1.200, 0.714, 0.114
-	// sunrise optimal: 1.656, 0.821, 0.414
-	shader->uniform3f("u_skyLightColor", (0.1*2)+t,(0.15*2)+t,(0.2*2)+t);
+	TimeCycle::update(shader);
 
 	texture->bind();
 	mat4 model(1.0f);
 
-	for (size_t i = 0; i < Level::getChunks()->volume; i++)
+	for (size_t i = 0; i < Level::getChunks()->getChunkVolume(); i++)
 	{
-		Chunk* chunk = Level::getChunks()->chunks[i];
+		Chunk* chunk = Level::getChunks()->getChunkByPos(i);
 		if (chunk == nullptr) {
 			continue;
 		}
 
-		Mesh* mesh = Level::getChunks()->meshes[i];
+		Mesh* mesh = Level::getChunks()->getChunkMeshByPos(i);
 		if (mesh == nullptr) {
 			continue;
 		}
@@ -155,9 +158,6 @@ void draw_world(Camera* camera)
 		shader->uniformMatrix("u_model", model);
 		mesh->draw(GL_TRIANGLES);
 	}
-
-	// crosshairShader->use();
-	// crosshair->draw(GL_LINES);
 
 	linesShader->use();
 	linesShader->uniformMatrix("u_projview", camera->getProjection()*camera->getView());
@@ -179,8 +179,6 @@ void finalize_assets()
 int fLastDistanceBlockBP = 0.0f;
 int main() 
 {
-	setup_definitions();
-
 	Window::initialize(WIDTH, HEIGHT, "MCVE");
 	Events::initialize();
 	Events::toogleCursor();
@@ -191,7 +189,11 @@ int main()
 		return 1;
 	}
 
+	Blocks::initialize();
+	Items::initialize();
 	Level::initialize();
+	TimeCycle::setup();
+	TimeCycle::setGlobalTick(rand() % 20000);
 
 	VoxelRenderer renderer(1024*1024);
 	lineBatch = new LineBatch(4096);
@@ -209,7 +211,7 @@ int main()
 	float camX = 0.0f;
 	float camY = 0.0f;
 
-	float playerSpeed = 4.0f;
+	float playerSpeed = 8.0f;
 
 	int choosenBlock = 0;
 	long frame = 0;
@@ -217,7 +219,7 @@ int main()
 	int iBreakPutSpeed = 0;	
 	bool bBreak = false;
 
-	glfwSwapInterval(0); // fuck down vsync plz
+	glfwSwapInterval(1); // fuck down vsync plz
 
 	while (!Window::isShouldClose())
 	{
@@ -227,6 +229,9 @@ int main()
 		lastTime = currentTime;
 		bIgnoreControllable = (Events::isCursorEnabled() || chat::isActive()) ? true : false;
 		
+		// playerSpeed = (4.0f * cos(1/delta)) + 7.0f; // inverted
+		playerSpeed = (4.0f * -cos(1/delta)) + 7.0f;
+
 		if (Events::jpressed(GLFW_KEY_ESCAPE))
 		{
 			if(!chat::isActive()) 
@@ -255,6 +260,7 @@ int main()
 		// Controls
 		bool sprint = Events::pressed(GLFW_KEY_LEFT_CONTROL) && !bIgnoreControllable;
 		bool shift = Events::pressed(GLFW_KEY_LEFT_SHIFT) && hitbox->grounded && !sprint && !bIgnoreControllable;
+		if(shift) { playerSpeed -= 5.0f; } else { if(sprint) playerSpeed += 5.0f; }
 
 		float speed = playerSpeed;
 		int substeps = (int)(delta * 1000);

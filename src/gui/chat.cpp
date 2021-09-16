@@ -12,6 +12,8 @@
 #include "../window/Camera.h"
 #include "../voxels/Level.h"
 
+#include "../voxels/TimeCycle.h"
+
 #include <algorithm>
 #include <string>
 #include <chrono>
@@ -45,7 +47,7 @@ void chat::drawInput(const char* str)
 	float fFontAbuse = 3.5f;
 	float fBoxMargin = 30.0f;
 
-	ImGui::GetBackgroundDrawList()->AddRectFilled({fBoxMargin, io.DisplaySize.y - fRadius}, {io.DisplaySize.x - fBoxMargin, io.DisplaySize.y - 20.0f}, ImColor(30, 30, 32), 8.f, ImDrawCornerFlags_Left | ImDrawCornerFlags_Right);
+	ImGui::GetBackgroundDrawList()->AddRectFilled({fBoxMargin, io.DisplaySize.y - fRadius}, {io.DisplaySize.x - fBoxMargin, io.DisplaySize.y - 20.0f}, ImColor(30, 30, 32, 175), 8.f, ImDrawCornerFlags_Left | ImDrawCornerFlags_Right);
 
 	char buffer[2048] = { '\0' };
 	sprintf(buffer, "%s", str);
@@ -87,9 +89,15 @@ void chat::backspaceCheck()
 
 extern bool bDebugDraw;
 extern bool bDayStatus;
+extern bool bAlwaysSkipFrame;
+extern bool bFlyEnabled;
 void chat::draw()
 {
 	static bool bMCPrev = true;
+
+	if (Events::jpressed(GLFW_KEY_B) && !chat::isActive()) {
+		bAlwaysSkipFrame ^= true;
+	}
 
 	if(!chat::isActive()) 
 	{
@@ -127,18 +135,61 @@ void chat::draw()
 		{
 			bDebugDraw ^= true;
 		}
+		else if(strcmp(cmd, "/gamemode") == 0 || strcmp(cmd, "/gm") == 0) 
+		{
+			if(strlen(arg1))
+			{
+				if(strcmp(arg1, "1") == 0 || strcmp(arg1, "c") == 0 | strcmp(arg1, "creative") == 0) 
+				{
+					bFlyEnabled = true;
+				}
+				else if(strcmp(arg1, "0") == 0 || strcmp(arg1, "s") == 0 | strcmp(arg1, "survival") == 0) 
+				{
+					bFlyEnabled = false;
+				}
+				else if(strcmp(arg1, "2") == 0 || strcmp(arg1, "a") == 0 | strcmp(arg1, "adventure") == 0) 
+				{
+					bFlyEnabled = false;
+				}
+				else if(strcmp(arg1, "3") == 0 || strcmp(arg1, "v") == 0 | strcmp(arg1, "spectator") == 0) 
+				{
+					bFlyEnabled = true;
+				}
+			}
+			else
+			{
+
+			}
+		}
 		else if(strcmp(cmd, "/time") == 0) 
 		{
 			if(strcmp(arg1, "set") == 0) 
 			{
-				if(strcmp(arg2, "day") == 0 || strcmp(arg2, "d") == 0 || strcmp(arg2, "0") == 0) 
+				if(strlen(arg2))
 				{
-					bDayStatus = true;
+					TimeCycle::setGlobalTick(atoi(arg2));
 				}
-				else if(strcmp(arg2, "night") == 0 || strcmp(arg2, "n") == 0) 
+				else
 				{
-					bDayStatus = false;
+
 				}
+				
+			}
+			else if(strcmp(arg1, "clip") == 0) 
+			{
+				if(strlen(arg2))
+				{
+					TimeCycle::setGlobalTick(TimeCycle::getGlobalTick() + atoi(arg2));
+				}
+				else
+				{
+
+				}
+				
+			}
+			else if(strcmp(arg1, "stop") == 0) 
+			{
+				// ...
 			}
 			else if(strcmp(arg1, "query") == 0) 
 			{
@@ -324,5 +375,17 @@ void chat::draw()
 
 	if (Events::jpressed(GLFW_KEY_SPACE)) {
 		chat::addChar(" ");
+	}
+
+	if (Events::jpressed(GLFW_KEY_MINUS)) {
+		chat::addChar("-");
+	}
+
+	if (Events::jpressed(GLFW_KEY_PERIOD)) {
+		chat::addChar(".");
+	}
+
+	if (Events::jpressed(GLFW_KEY_COMMA)) {
+		chat::addChar(",");
 	}
 }

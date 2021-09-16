@@ -19,6 +19,7 @@ public:
 	static WorldFiles* getData();
 	static void writeData();
 	static void closeData();
+	static void growTree(int x, int y, int z);
 };
 
 #endif

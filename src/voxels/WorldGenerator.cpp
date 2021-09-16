@@ -1,12 +1,16 @@
 #include "WorldGenerator.h"
-#include "voxel.h";
-#include "Chunk.h";
+#include "voxel.h"
+
+#include "Level.h"
 
 #include <math.h>
 #include "../glm/glm.hpp"
 #include "../glm/gtc/noise.hpp"
 
-void WorldGenerator::generate(voxel* voxels, int cx, int cy, int cz){
+void WorldGenerator::generate(Chunks* chunks, voxel* voxels, int cx, int cy, int cz)
+{
+	int iSavedX = 0, iSavedY = 0, iSavedZ = 0;
+
 	for (int z = 0; z < CHUNK_D; z++)
 	{
 		for (int x = 0; x < CHUNK_W; x++)
@@ -22,18 +26,22 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cy, int cz){
 			for (int y = 0; y < CHUNK_H; y++)
 			{
 				int real_y = y + cy * CHUNK_H;
+
 				float noise = height;
 				int id = noise / std::fmax(0.01f, real_y*0.1f + 0.1f) > 0.1f;
 
-				if(id == 1) {
+				if (real_y < 15) {
+					id = 1;
+				}
+
+				if (real_y == 15) 
+				{
+					iSavedX = real_x;
+					iSavedY = real_y;
+					iSavedZ = real_z;
 					id = 2;
 				}
 
-				if (real_y <= 2)
-					id = 2;
-
-				// if (id == 0 && real_y == 14 && height <= 0.01f)
-					// id = 1;
 				voxels[(y * CHUNK_D + z) * CHUNK_W + x].id = id;
 			}
 		}

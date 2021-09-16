@@ -147,6 +147,11 @@ void gui::drawText(float font_size, ImFont* font, ImVec2& posCur, ImU32 col, boo
 bool bDebugDraw = false;
 extern int fLastDistanceBlockBP;
 extern Camera* camera;
+
+extern float fBrightness;
+extern uint32_t iWorldTickGlobal;
+extern uint32_t iWorldTickOver;
+
 void gui::drawDebug()
 {
 	ImGuiIO& io = ImGui::GetIO();
@@ -155,7 +160,10 @@ void gui::drawDebug()
 	vec3 vecCam = camera->getPos();
 
 	char frameBufferInfo[0xFF] = { '\0' };
-	sprintf(frameBufferInfo, "Cursor state: %s / X: %.2f Y: %.2f Z: %.2f\nLBA dist: %d / Application average %.3f ms/frame (%.1f FPS)", Events::isCursorEnabled() ? "enabled" : "disabled", vecCam.x, vecCam.y, vecCam.z, fLastDistanceBlockBP, 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	sprintf(frameBufferInfo, "Cursor state: %s / X: %.2f Y: %.2f Z: %.2f\nLBA dist: %d / Application average %.3f ms/frame (%.1f FPS)\nWorld tick: %d / TO: %d / DBRT: %f", 
+        Events::isCursorEnabled() ? "enabled" : "disabled", vecCam.x, vecCam.y, vecCam.z, 
+        fLastDistanceBlockBP, 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate,
+        iWorldTickGlobal, iWorldTickOver, fBrightness);
 	gui::drawText(30.0f, gui::getFont(), vecText, ImColor(255, 222, 255, 255), true, frameBufferInfo);
 }
 

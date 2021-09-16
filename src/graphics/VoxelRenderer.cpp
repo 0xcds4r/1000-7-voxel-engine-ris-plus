@@ -17,15 +17,15 @@
 #define VOXEL(X,Y,Z) (GET_CHUNK(X,Y,Z)->voxels[(LOCAL(Y, CHUNK_H) * CHUNK_D + LOCAL(Z, CHUNK_D)) * CHUNK_W + LOCAL(X, CHUNK_W)])
 #define IS_BLOCKED(X,Y,Z,GROUP) ((!IS_CHUNK(X, Y, Z)) || Block::blocks[VOXEL(X, Y, Z).id]->drawGroup == (GROUP))
 
-#define VERTEX(INDEX, X,Y,Z, U,V, R,G,B,S) buffer[INDEX+0] = (X);\
-								  buffer[INDEX+1] = (Y);\
-								  buffer[INDEX+2] = (Z);\
-								  buffer[INDEX+3] = (U);\
-								  buffer[INDEX+4] = (V);\
-								  buffer[INDEX+5] = (R);\
-								  buffer[INDEX+6] = (G);\
-								  buffer[INDEX+7] = (B);\
-								  buffer[INDEX+8] = (S);\
+#define VERTEX(INDEX, X,Y,Z, U,V, R,G,B,S) buffer[INDEX+0] = (X); \
+								  buffer[INDEX+1] = (Y); \
+								  buffer[INDEX+2] = (Z); \
+								  buffer[INDEX+3] = (U); \
+								  buffer[INDEX+4] = (V); \
+								  buffer[INDEX+5] = (R); \
+								  buffer[INDEX+6] = (G); \
+								  buffer[INDEX+7] = (B); \
+								  buffer[INDEX+8] = (S); \
 								  INDEX += VERTEX_SIZE;
 
 
@@ -43,6 +43,8 @@ VoxelRenderer::VoxelRenderer(size_t capacity) : capacity(capacity) {
 VoxelRenderer::~VoxelRenderer(){
 	delete[] buffer;
 }
+
+float fRootHeap = 20.0f;
 
 Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks){
 	size_t index = 0;
@@ -67,30 +69,30 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks){
 
 					SETUP_UV(block->textureFaces[3]);
 
-					float lr = LIGHT(x,y+1,z, 0) / 15.0f;
-					float lg = LIGHT(x,y+1,z, 1) / 15.0f;
-					float lb = LIGHT(x,y+1,z, 2) / 15.0f;
-					float ls = LIGHT(x,y+1,z, 3) / 15.0f;
+					float lr = LIGHT(x,y+1,z, 0) / fRootHeap;
+					float lg = LIGHT(x,y+1,z, 1) / fRootHeap;
+					float lb = LIGHT(x,y+1,z, 2) / fRootHeap;
+					float ls = LIGHT(x,y+1,z, 3) / fRootHeap;
 
-					float lr0 = (LIGHT(x-1,y+1,z,0) + lr*30 + LIGHT(x-1,y+1,z-1,0) + LIGHT(x,y+1,z-1,0)) / 5.0f / 15.0f;
-					float lr1 = (LIGHT(x-1,y+1,z,0) + lr*30 + LIGHT(x-1,y+1,z+1,0) + LIGHT(x,y+1,z+1,0)) / 5.0f / 15.0f;
-					float lr2 = (LIGHT(x+1,y+1,z,0) + lr*30 + LIGHT(x+1,y+1,z+1,0) + LIGHT(x,y+1,z+1,0)) / 5.0f / 15.0f;
-					float lr3 = (LIGHT(x+1,y+1,z,0) + lr*30 + LIGHT(x+1,y+1,z-1,0) + LIGHT(x,y+1,z-1,0)) / 5.0f / 15.0f;
+					float lr0 = (LIGHT(x-1,y+1,z,0) + lr*30 + LIGHT(x-1,y+1,z-1,0) + LIGHT(x,y+1,z-1,0)) / 5.0f / fRootHeap;
+					float lr1 = (LIGHT(x-1,y+1,z,0) + lr*30 + LIGHT(x-1,y+1,z+1,0) + LIGHT(x,y+1,z+1,0)) / 5.0f / fRootHeap;
+					float lr2 = (LIGHT(x+1,y+1,z,0) + lr*30 + LIGHT(x+1,y+1,z+1,0) + LIGHT(x,y+1,z+1,0)) / 5.0f / fRootHeap;
+					float lr3 = (LIGHT(x+1,y+1,z,0) + lr*30 + LIGHT(x+1,y+1,z-1,0) + LIGHT(x,y+1,z-1,0)) / 5.0f / fRootHeap;
 
-					float lg0 = (LIGHT(x-1,y+1,z,1) + lg*30 + LIGHT(x-1,y+1,z-1,1) + LIGHT(x,y+1,z-1,1)) / 5.0f / 15.0f;
-					float lg1 = (LIGHT(x-1,y+1,z,1) + lg*30 + LIGHT(x-1,y+1,z+1,1) + LIGHT(x,y+1,z+1,1)) / 5.0f / 15.0f;
-					float lg2 = (LIGHT(x+1,y+1,z,1) + lg*30 + LIGHT(x+1,y+1,z+1,1) + LIGHT(x,y+1,z+1,1)) / 5.0f / 15.0f;
-					float lg3 = (LIGHT(x+1,y+1,z,1) + lg*30 + LIGHT(x+1,y+1,z-1,1) + LIGHT(x,y+1,z-1,1)) / 5.0f / 15.0f;
+					float lg0 = (LIGHT(x-1,y+1,z,1) + lg*30 + LIGHT(x-1,y+1,z-1,1) + LIGHT(x,y+1,z-1,1)) / 5.0f / fRootHeap;
+					float lg1 = (LIGHT(x-1,y+1,z,1) + lg*30 + LIGHT(x-1,y+1,z+1,1) + LIGHT(x,y+1,z+1,1)) / 5.0f / fRootHeap;
+					float lg2 = (LIGHT(x+1,y+1,z,1) + lg*30 + LIGHT(x+1,y+1,z+1,1) + LIGHT(x,y+1,z+1,1)) / 5.0f / fRootHeap;
+					float lg3 = (LIGHT(x+1,y+1,z,1) + lg*30 + LIGHT(x+1,y+1,z-1,1) + LIGHT(x,y+1,z-1,1)) / 5.0f / fRootHeap;
 
-					float lb0 = (LIGHT(x-1,y+1,z,2) + lb*30 + LIGHT(x-1,y+1,z-1,2) + LIGHT(x,y+1,z-1,2)) / 5.0f / 15.0f;
-					float lb1 = (LIGHT(x-1,y+1,z,2) + lb*30 + LIGHT(x-1,y+1,z+1,2) + LIGHT(x,y+1,z+1,2)) / 5.0f / 15.0f;
-					float lb2 = (LIGHT(x+1,y+1,z,2) + lb*30 + LIGHT(x+1,y+1,z+1,2) + LIGHT(x,y+1,z+1,2)) / 5.0f / 15.0f;
-					float lb3 = (LIGHT(x+1,y+1,z,2) + lb*30 + LIGHT(x+1,y+1,z-1,2) + LIGHT(x,y+1,z-1,2)) / 5.0f / 15.0f;
+					float lb0 = (LIGHT(x-1,y+1,z,2) + lb*30 + LIGHT(x-1,y+1,z-1,2) + LIGHT(x,y+1,z-1,2)) / 5.0f / fRootHeap;
+					float lb1 = (LIGHT(x-1,y+1,z,2) + lb*30 + LIGHT(x-1,y+1,z+1,2) + LIGHT(x,y+1,z+1,2)) / 5.0f / fRootHeap;
+					float lb2 = (LIGHT(x+1,y+1,z,2) + lb*30 + LIGHT(x+1,y+1,z+1,2) + LIGHT(x,y+1,z+1,2)) / 5.0f / fRootHeap;
+					float lb3 = (LIGHT(x+1,y+1,z,2) + lb*30 + LIGHT(x+1,y+1,z-1,2) + LIGHT(x,y+1,z-1,2)) / 5.0f / fRootHeap;
 
-					float ls0 = (LIGHT(x-1,y+1,z,3) + ls*30 + LIGHT(x-1,y+1,z-1,3) + LIGHT(x,y+1,z-1,3)) / 5.0f / 15.0f;
-					float ls1 = (LIGHT(x-1,y+1,z,3) + ls*30 + LIGHT(x-1,y+1,z+1,3) + LIGHT(x,y+1,z+1,3)) / 5.0f / 15.0f;
-					float ls2 = (LIGHT(x+1,y+1,z,3) + ls*30 + LIGHT(x+1,y+1,z+1,3) + LIGHT(x,y+1,z+1,3)) / 5.0f / 15.0f;
-					float ls3 = (LIGHT(x+1,y+1,z,3) + ls*30 + LIGHT(x+1,y+1,z-1,3) + LIGHT(x,y+1,z-1,3)) / 5.0f / 15.0f;
+					float ls0 = (LIGHT(x-1,y+1,z,3) + ls*30 + LIGHT(x-1,y+1,z-1,3) + LIGHT(x,y+1,z-1,3)) / 5.0f / fRootHeap;
+					float ls1 = (LIGHT(x-1,y+1,z,3) + ls*30 + LIGHT(x-1,y+1,z+1,3) + LIGHT(x,y+1,z+1,3)) / 5.0f / fRootHeap;
+					float ls2 = (LIGHT(x+1,y+1,z,3) + ls*30 + LIGHT(x+1,y+1,z+1,3) + LIGHT(x,y+1,z+1,3)) / 5.0f / fRootHeap;
+					float ls3 = (LIGHT(x+1,y+1,z,3) + ls*30 + LIGHT(x+1,y+1,z-1,3) + LIGHT(x,y+1,z-1,3)) / 5.0f / fRootHeap;
 
 					VERTEX(index, x-0.5f, y+0.5f, z-0.5f, u2,v1, lr0, lg0, lb0, ls0);
 					VERTEX(index, x-0.5f, y+0.5f, z+0.5f, u2,v2, lr1, lg1, lb1, ls1);
@@ -105,30 +107,30 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks){
 
 					SETUP_UV(block->textureFaces[2]);
 
-					float lr = LIGHT(x,y-1,z, 0) / 15.0f;
-					float lg = LIGHT(x,y-1,z, 1) / 15.0f;
-					float lb = LIGHT(x,y-1,z, 2) / 15.0f;
-					float ls = LIGHT(x,y-1,z, 3) / 15.0f;
+					float lr = LIGHT(x,y-1,z, 0) / fRootHeap;
+					float lg = LIGHT(x,y-1,z, 1) / fRootHeap;
+					float lb = LIGHT(x,y-1,z, 2) / fRootHeap;
+					float ls = LIGHT(x,y-1,z, 3) / fRootHeap;
 
-					float lr0 = (LIGHT(x-1,y-1,z-1,0) + lr*30 + LIGHT(x-1,y-1,z,0) + LIGHT(x,y-1,z-1,0)) / 5.0f / 15.0f;
-					float lr1 = (LIGHT(x+1,y-1,z+1,0) + lr*30 + LIGHT(x+1,y-1,z,0) + LIGHT(x,y-1,z+1,0)) / 5.0f / 15.0f;
-					float lr2 = (LIGHT(x-1,y-1,z+1,0) + lr*30 + LIGHT(x-1,y-1,z,0) + LIGHT(x,y-1,z+1,0)) / 5.0f / 15.0f;
-					float lr3 = (LIGHT(x+1,y-1,z-1,0) + lr*30 + LIGHT(x+1,y-1,z,0) + LIGHT(x,y-1,z-1,0)) / 5.0f / 15.0f;
+					float lr0 = (LIGHT(x-1,y-1,z-1,0) + lr*30 + LIGHT(x-1,y-1,z,0) + LIGHT(x,y-1,z-1,0)) / 5.0f / fRootHeap;
+					float lr1 = (LIGHT(x+1,y-1,z+1,0) + lr*30 + LIGHT(x+1,y-1,z,0) + LIGHT(x,y-1,z+1,0)) / 5.0f / fRootHeap;
+					float lr2 = (LIGHT(x-1,y-1,z+1,0) + lr*30 + LIGHT(x-1,y-1,z,0) + LIGHT(x,y-1,z+1,0)) / 5.0f / fRootHeap;
+					float lr3 = (LIGHT(x+1,y-1,z-1,0) + lr*30 + LIGHT(x+1,y-1,z,0) + LIGHT(x,y-1,z-1,0)) / 5.0f / fRootHeap;
 
-					float lg0 = (LIGHT(x-1,y-1,z-1,1) + lg*30 + LIGHT(x-1,y-1,z,1) + LIGHT(x,y-1,z-1,1)) / 5.0f / 15.0f;
-					float lg1 = (LIGHT(x+1,y-1,z+1,1) + lg*30 + LIGHT(x+1,y-1,z,1) + LIGHT(x,y-1,z+1,1)) / 5.0f / 15.0f;
-					float lg2 = (LIGHT(x-1,y-1,z+1,1) + lg*30 + LIGHT(x-1,y-1,z,1) + LIGHT(x,y-1,z+1,1)) / 5.0f / 15.0f;
-					float lg3 = (LIGHT(x+1,y-1,z-1,1) + lg*30 + LIGHT(x+1,y-1,z,1) + LIGHT(x,y-1,z-1,1)) / 5.0f / 15.0f;
+					float lg0 = (LIGHT(x-1,y-1,z-1,1) + lg*30 + LIGHT(x-1,y-1,z,1) + LIGHT(x,y-1,z-1,1)) / 5.0f / fRootHeap;
+					float lg1 = (LIGHT(x+1,y-1,z+1,1) + lg*30 + LIGHT(x+1,y-1,z,1) + LIGHT(x,y-1,z+1,1)) / 5.0f / fRootHeap;
+					float lg2 = (LIGHT(x-1,y-1,z+1,1) + lg*30 + LIGHT(x-1,y-1,z,1) + LIGHT(x,y-1,z+1,1)) / 5.0f / fRootHeap;
+					float lg3 = (LIGHT(x+1,y-1,z-1,1) + lg*30 + LIGHT(x+1,y-1,z,1) + LIGHT(x,y-1,z-1,1)) / 5.0f / fRootHeap;
 
-					float lb0 = (LIGHT(x-1,y-1,z-1,2) + lb*30 + LIGHT(x-1,y-1,z,2) + LIGHT(x,y-1,z-1,2)) / 5.0f / 15.0f;
-					float lb1 = (LIGHT(x+1,y-1,z+1,2) + lb*30 + LIGHT(x+1,y-1,z,2) + LIGHT(x,y-1,z+1,2)) / 5.0f / 15.0f;
-					float lb2 = (LIGHT(x-1,y-1,z+1,2) + lb*30 + LIGHT(x-1,y-1,z,2) + LIGHT(x,y-1,z+1,2)) / 5.0f / 15.0f;
-					float lb3 = (LIGHT(x+1,y-1,z-1,2) + lb*30 + LIGHT(x+1,y-1,z,2) + LIGHT(x,y-1,z-1,2)) / 5.0f / 15.0f;
+					float lb0 = (LIGHT(x-1,y-1,z-1,2) + lb*30 + LIGHT(x-1,y-1,z,2) + LIGHT(x,y-1,z-1,2)) / 5.0f / fRootHeap;
+					float lb1 = (LIGHT(x+1,y-1,z+1,2) + lb*30 + LIGHT(x+1,y-1,z,2) + LIGHT(x,y-1,z+1,2)) / 5.0f / fRootHeap;
+					float lb2 = (LIGHT(x-1,y-1,z+1,2) + lb*30 + LIGHT(x-1,y-1,z,2) + LIGHT(x,y-1,z+1,2)) / 5.0f / fRootHeap;
+					float lb3 = (LIGHT(x+1,y-1,z-1,2) + lb*30 + LIGHT(x+1,y-1,z,2) + LIGHT(x,y-1,z-1,2)) / 5.0f / fRootHeap;
 
-					float ls0 = (LIGHT(x-1,y-1,z-1,3) + ls*30 + LIGHT(x-1,y-1,z,3) + LIGHT(x,y-1,z-1,3)) / 5.0f / 15.0f;
-					float ls1 = (LIGHT(x+1,y-1,z+1,3) + ls*30 + LIGHT(x+1,y-1,z,3) + LIGHT(x,y-1,z+1,3)) / 5.0f / 15.0f;
-					float ls2 = (LIGHT(x-1,y-1,z+1,3) + ls*30 + LIGHT(x-1,y-1,z,3) + LIGHT(x,y-1,z+1,3)) / 5.0f / 15.0f;
-					float ls3 = (LIGHT(x+1,y-1,z-1,3) + ls*30 + LIGHT(x+1,y-1,z,3) + LIGHT(x,y-1,z-1,3)) / 5.0f / 15.0f;
+					float ls0 = (LIGHT(x-1,y-1,z-1,3) + ls*30 + LIGHT(x-1,y-1,z,3) + LIGHT(x,y-1,z-1,3)) / 5.0f / fRootHeap;
+					float ls1 = (LIGHT(x+1,y-1,z+1,3) + ls*30 + LIGHT(x+1,y-1,z,3) + LIGHT(x,y-1,z+1,3)) / 5.0f / fRootHeap;
+					float ls2 = (LIGHT(x-1,y-1,z+1,3) + ls*30 + LIGHT(x-1,y-1,z,3) + LIGHT(x,y-1,z+1,3)) / 5.0f / fRootHeap;
+					float ls3 = (LIGHT(x+1,y-1,z-1,3) + ls*30 + LIGHT(x+1,y-1,z,3) + LIGHT(x,y-1,z-1,3)) / 5.0f / fRootHeap;
 
 					VERTEX(index, x-0.5f, y-0.5f, z-0.5f, u1,v1, lr0,lg0,lb0,ls0);
 					VERTEX(index, x+0.5f, y-0.5f, z+0.5f, u2,v2, lr1,lg1,lb1,ls1);
@@ -144,30 +146,30 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks){
 
 					SETUP_UV(block->textureFaces[1]);
 
-					float lr = LIGHT(x+1,y,z, 0) / 15.0f;
-					float lg = LIGHT(x+1,y,z, 1) / 15.0f;
-					float lb = LIGHT(x+1,y,z, 2) / 15.0f;
-					float ls = LIGHT(x+1,y,z, 3) / 15.0f;
+					float lr = LIGHT(x+1,y,z, 0) / fRootHeap;
+					float lg = LIGHT(x+1,y,z, 1) / fRootHeap;
+					float lb = LIGHT(x+1,y,z, 2) / fRootHeap;
+					float ls = LIGHT(x+1,y,z, 3) / fRootHeap;
 
-					float lr0 = (LIGHT(x+1,y-1,z-1,0) + lr*30 + LIGHT(x+1,y,z-1,0) + LIGHT(x+1,y-1,z,0)) / 5.0f / 15.0f;
-					float lr1 = (LIGHT(x+1,y+1,z-1,0) + lr*30 + LIGHT(x+1,y,z-1,0) + LIGHT(x+1,y+1,z,0)) / 5.0f / 15.0f;
-					float lr2 = (LIGHT(x+1,y+1,z+1,0) + lr*30 + LIGHT(x+1,y,z+1,0) + LIGHT(x+1,y+1,z,0)) / 5.0f / 15.0f;
-					float lr3 = (LIGHT(x+1,y-1,z+1,0) + lr*30 + LIGHT(x+1,y,z+1,0) + LIGHT(x+1,y-1,z,0)) / 5.0f / 15.0f;
+					float lr0 = (LIGHT(x+1,y-1,z-1,0) + lr*30 + LIGHT(x+1,y,z-1,0) + LIGHT(x+1,y-1,z,0)) / 5.0f / fRootHeap;
+					float lr1 = (LIGHT(x+1,y+1,z-1,0) + lr*30 + LIGHT(x+1,y,z-1,0) + LIGHT(x+1,y+1,z,0)) / 5.0f / fRootHeap;
+					float lr2 = (LIGHT(x+1,y+1,z+1,0) + lr*30 + LIGHT(x+1,y,z+1,0) + LIGHT(x+1,y+1,z,0)) / 5.0f / fRootHeap;
+					float lr3 = (LIGHT(x+1,y-1,z+1,0) + lr*30 + LIGHT(x+1,y,z+1,0) + LIGHT(x+1,y-1,z,0)) / 5.0f / fRootHeap;
 
-					float lg0 = (LIGHT(x+1,y-1,z-1,1) + lg*30 + LIGHT(x+1,y,z-1,1) + LIGHT(x+1,y-1,z,1)) / 5.0f / 15.0f;
-					float lg1 = (LIGHT(x+1,y+1,z-1,1) + lg*30 + LIGHT(x+1,y,z-1,1) + LIGHT(x+1,y+1,z,1)) / 5.0f / 15.0f;
-					float lg2 = (LIGHT(x+1,y+1,z+1,1) + lg*30 + LIGHT(x+1,y,z+1,1) + LIGHT(x+1,y+1,z,1)) / 5.0f / 15.0f;
-					float lg3 = (LIGHT(x+1,y-1,z+1,1) + lg*30 + LIGHT(x+1,y,z+1,1) + LIGHT(x+1,y-1,z,1)) / 5.0f / 15.0f;
+					float lg0 = (LIGHT(x+1,y-1,z-1,1) + lg*30 + LIGHT(x+1,y,z-1,1) + LIGHT(x+1,y-1,z,1)) / 5.0f / fRootHeap;
+					float lg1 = (LIGHT(x+1,y+1,z-1,1) + lg*30 + LIGHT(x+1,y,z-1,1) + LIGHT(x+1,y+1,z,1)) / 5.0f / fRootHeap;
+					float lg2 = (LIGHT(x+1,y+1,z+1,1) + lg*30 + LIGHT(x+1,y,z+1,1) + LIGHT(x+1,y+1,z,1)) / 5.0f / fRootHeap;
+					float lg3 = (LIGHT(x+1,y-1,z+1,1) + lg*30 + LIGHT(x+1,y,z+1,1) + LIGHT(x+1,y-1,z,1)) / 5.0f / fRootHeap;
 
-					float lb0 = (LIGHT(x+1,y-1,z-1,2) + lb*30 + LIGHT(x+1,y,z-1,2) + LIGHT(x+1,y-1,z,2)) / 5.0f / 15.0f;
-					float lb1 = (LIGHT(x+1,y+1,z-1,2) + lb*30 + LIGHT(x+1,y,z-1,2) + LIGHT(x+1,y+1,z,2)) / 5.0f / 15.0f;
-					float lb2 = (LIGHT(x+1,y+1,z+1,2) + lb*30 + LIGHT(x+1,y,z+1,2) + LIGHT(x+1,y+1,z,2)) / 5.0f / 15.0f;
-					float lb3 = (LIGHT(x+1,y-1,z+1,2) + lb*30 + LIGHT(x+1,y,z+1,2) + LIGHT(x+1,y-1,z,2)) / 5.0f / 15.0f;
+					float lb0 = (LIGHT(x+1,y-1,z-1,2) + lb*30 + LIGHT(x+1,y,z-1,2) + LIGHT(x+1,y-1,z,2)) / 5.0f / fRootHeap;
+					float lb1 = (LIGHT(x+1,y+1,z-1,2) + lb*30 + LIGHT(x+1,y,z-1,2) + LIGHT(x+1,y+1,z,2)) / 5.0f / fRootHeap;
+					float lb2 = (LIGHT(x+1,y+1,z+1,2) + lb*30 + LIGHT(x+1,y,z+1,2) + LIGHT(x+1,y+1,z,2)) / 5.0f / fRootHeap;
+					float lb3 = (LIGHT(x+1,y-1,z+1,2) + lb*30 + LIGHT(x+1,y,z+1,2) + LIGHT(x+1,y-1,z,2)) / 5.0f / fRootHeap;
 
-					float ls0 = (LIGHT(x+1,y-1,z-1,3) + ls*30 + LIGHT(x+1,y,z-1,3) + LIGHT(x+1,y-1,z,3)) / 5.0f / 15.0f;
-					float ls1 = (LIGHT(x+1,y+1,z-1,3) + ls*30 + LIGHT(x+1,y,z-1,3) + LIGHT(x+1,y+1,z,3)) / 5.0f / 15.0f;
-					float ls2 = (LIGHT(x+1,y+1,z+1,3) + ls*30 + LIGHT(x+1,y,z+1,3) + LIGHT(x+1,y+1,z,3)) / 5.0f / 15.0f;
-					float ls3 = (LIGHT(x+1,y-1,z+1,3) + ls*30 + LIGHT(x+1,y,z+1,3) + LIGHT(x+1,y-1,z,3)) / 5.0f / 15.0f;
+					float ls0 = (LIGHT(x+1,y-1,z-1,3) + ls*30 + LIGHT(x+1,y,z-1,3) + LIGHT(x+1,y-1,z,3)) / 5.0f / fRootHeap;
+					float ls1 = (LIGHT(x+1,y+1,z-1,3) + ls*30 + LIGHT(x+1,y,z-1,3) + LIGHT(x+1,y+1,z,3)) / 5.0f / fRootHeap;
+					float ls2 = (LIGHT(x+1,y+1,z+1,3) + ls*30 + LIGHT(x+1,y,z+1,3) + LIGHT(x+1,y+1,z,3)) / 5.0f / fRootHeap;
+					float ls3 = (LIGHT(x+1,y-1,z+1,3) + ls*30 + LIGHT(x+1,y,z+1,3) + LIGHT(x+1,y-1,z,3)) / 5.0f / fRootHeap;
 
 					VERTEX(index, x+0.5f, y-0.5f, z-0.5f, u2,v1, lr0,lg0,lb0,ls0);
 					VERTEX(index, x+0.5f, y+0.5f, z-0.5f, u2,v2, lr1,lg1,lb1,ls1);
@@ -182,30 +184,30 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks){
 
 					SETUP_UV(block->textureFaces[0]);
 
-					float lr = LIGHT(x-1,y,z, 0) / 15.0f;
-					float lg = LIGHT(x-1,y,z, 1) / 15.0f;
-					float lb = LIGHT(x-1,y,z, 2) / 15.0f;
-					float ls = LIGHT(x-1,y,z, 3) / 15.0f;
+					float lr = LIGHT(x-1,y,z, 0) / fRootHeap;
+					float lg = LIGHT(x-1,y,z, 1) / fRootHeap;
+					float lb = LIGHT(x-1,y,z, 2) / fRootHeap;
+					float ls = LIGHT(x-1,y,z, 3) / fRootHeap;
 
-					float lr0 = (LIGHT(x-1,y-1,z-1,0) + lr*30 + LIGHT(x-1,y,z-1,0) + LIGHT(x-1,y-1,z,0)) / 5.0f / 15.0f;
-					float lr1 = (LIGHT(x-1,y+1,z+1,0) + lr*30 + LIGHT(x-1,y,z+1,0) + LIGHT(x-1,y+1,z,0)) / 5.0f / 15.0f;
-					float lr2 = (LIGHT(x-1,y+1,z-1,0) + lr*30 + LIGHT(x-1,y,z-1,0) + LIGHT(x-1,y+1,z,0)) / 5.0f / 15.0f;
-					float lr3 = (LIGHT(x-1,y-1,z+1,0) + lr*30 + LIGHT(x-1,y,z+1,0) + LIGHT(x-1,y-1,z,0)) / 5.0f / 15.0f;
+					float lr0 = (LIGHT(x-1,y-1,z-1,0) + lr*30 + LIGHT(x-1,y,z-1,0) + LIGHT(x-1,y-1,z,0)) / 5.0f / fRootHeap;
+					float lr1 = (LIGHT(x-1,y+1,z+1,0) + lr*30 + LIGHT(x-1,y,z+1,0) + LIGHT(x-1,y+1,z,0)) / 5.0f / fRootHeap;
+					float lr2 = (LIGHT(x-1,y+1,z-1,0) + lr*30 + LIGHT(x-1,y,z-1,0) + LIGHT(x-1,y+1,z,0)) / 5.0f / fRootHeap;
+					float lr3 = (LIGHT(x-1,y-1,z+1,0) + lr*30 + LIGHT(x-1,y,z+1,0) + LIGHT(x-1,y-1,z,0)) / 5.0f / fRootHeap;
 
-					float lg0 = (LIGHT(x-1,y-1,z-1,1) + lg*30 + LIGHT(x-1,y,z-1,1) + LIGHT(x-1,y-1,z,1)) / 5.0f / 15.0f;
-					float lg1 = (LIGHT(x-1,y+1,z+1,1) + lg*30 + LIGHT(x-1,y,z+1,1) + LIGHT(x-1,y+1,z,1)) / 5.0f / 15.0f;
-					float lg2 = (LIGHT(x-1,y+1,z-1,1) + lg*30 + LIGHT(x-1,y,z-1,1) + LIGHT(x-1,y+1,z,1)) / 5.0f / 15.0f;
-					float lg3 = (LIGHT(x-1,y-1,z+1,1) + lg*30 + LIGHT(x-1,y,z+1,1) + LIGHT(x-1,y-1,z,1)) / 5.0f / 15.0f;
+					float lg0 = (LIGHT(x-1,y-1,z-1,1) + lg*30 + LIGHT(x-1,y,z-1,1) + LIGHT(x-1,y-1,z,1)) / 5.0f / fRootHeap;
+					float lg1 = (LIGHT(x-1,y+1,z+1,1) + lg*30 + LIGHT(x-1,y,z+1,1) + LIGHT(x-1,y+1,z,1)) / 5.0f / fRootHeap;
+					float lg2 = (LIGHT(x-1,y+1,z-1,1) + lg*30 + LIGHT(x-1,y,z-1,1) + LIGHT(x-1,y+1,z,1)) / 5.0f / fRootHeap;
+					float lg3 = (LIGHT(x-1,y-1,z+1,1) + lg*30 + LIGHT(x-1,y,z+1,1) + LIGHT(x-1,y-1,z,1)) / 5.0f / fRootHeap;
 
-					float lb0 = (LIGHT(x-1,y-1,z-1,2) + lb*30 + LIGHT(x-1,y,z-1,2) + LIGHT(x-1,y-1,z,2)) / 5.0f / 15.0f;
-					float lb1 = (LIGHT(x-1,y+1,z+1,2) + lb*30 + LIGHT(x-1,y,z+1,2) + LIGHT(x-1,y+1,z,2)) / 5.0f / 15.0f;
-					float lb2 = (LIGHT(x-1,y+1,z-1,2) + lb*30 + LIGHT(x-1,y,z-1,2) + LIGHT(x-1,y+1,z,2)) / 5.0f / 15.0f;
-					float lb3 = (LIGHT(x-1,y-1,z+1,2) + lb*30 + LIGHT(x-1,y,z+1,2) + LIGHT(x-1,y-1,z,2)) / 5.0f / 15.0f;
+					float lb0 = (LIGHT(x-1,y-1,z-1,2) + lb*30 + LIGHT(x-1,y,z-1,2) + LIGHT(x-1,y-1,z,2)) / 5.0f / fRootHeap;
+					float lb1 = (LIGHT(x-1,y+1,z+1,2) + lb*30 + LIGHT(x-1,y,z+1,2) + LIGHT(x-1,y+1,z,2)) / 5.0f / fRootHeap;
+					float lb2 = (LIGHT(x-1,y+1,z-1,2) + lb*30 + LIGHT(x-1,y,z-1,2) + LIGHT(x-1,y+1,z,2)) / 5.0f / fRootHeap;
+					float lb3 = (LIGHT(x-1,y-1,z+1,2) + lb*30 + LIGHT(x-1,y,z+1,2) + LIGHT(x-1,y-1,z,2)) / 5.0f / fRootHeap;
 
-					float ls0 = (LIGHT(x-1,y-1,z-1,3) + ls*30 + LIGHT(x-1,y,z-1,3) + LIGHT(x-1,y-1,z,3)) / 5.0f / 15.0f;
-					float ls1 = (LIGHT(x-1,y+1,z+1,3) + ls*30 + LIGHT(x-1,y,z+1,3) + LIGHT(x-1,y+1,z,3)) / 5.0f / 15.0f;
-					float ls2 = (LIGHT(x-1,y+1,z-1,3) + ls*30 + LIGHT(x-1,y,z-1,3) + LIGHT(x-1,y+1,z,3)) / 5.0f / 15.0f;
-					float ls3 = (LIGHT(x-1,y-1,z+1,3) + ls*30 + LIGHT(x-1,y,z+1,3) + LIGHT(x-1,y-1,z,3)) / 5.0f / 15.0f;
+					float ls0 = (LIGHT(x-1,y-1,z-1,3) + ls*30 + LIGHT(x-1,y,z-1,3) + LIGHT(x-1,y-1,z,3)) / 5.0f / fRootHeap;
+					float ls1 = (LIGHT(x-1,y+1,z+1,3) + ls*30 + LIGHT(x-1,y,z+1,3) + LIGHT(x-1,y+1,z,3)) / 5.0f / fRootHeap;
+					float ls2 = (LIGHT(x-1,y+1,z-1,3) + ls*30 + LIGHT(x-1,y,z-1,3) + LIGHT(x-1,y+1,z,3)) / 5.0f / fRootHeap;
+					float ls3 = (LIGHT(x-1,y-1,z+1,3) + ls*30 + LIGHT(x-1,y,z+1,3) + LIGHT(x-1,y-1,z,3)) / 5.0f / fRootHeap;
 
 					VERTEX(index, x-0.5f, y-0.5f, z-0.5f, u1,v1, lr0,lg0,lb0,ls0);
 					VERTEX(index, x-0.5f, y+0.5f, z+0.5f, u2,v2, lr1,lg1,lb1,ls1);
@@ -221,30 +223,30 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks){
 
 					SETUP_UV(block->textureFaces[5]);
 
-					float lr = LIGHT(x,y,z+1, 0) / 15.0f;
-					float lg = LIGHT(x,y,z+1, 1) / 15.0f;
-					float lb = LIGHT(x,y,z+1, 2) / 15.0f;
-					float ls = LIGHT(x,y,z+1, 3) / 15.0f;
+					float lr = LIGHT(x,y,z+1, 0) / fRootHeap;
+					float lg = LIGHT(x,y,z+1, 1) / fRootHeap;
+					float lb = LIGHT(x,y,z+1, 2) / fRootHeap;
+					float ls = LIGHT(x,y,z+1, 3) / fRootHeap;
 
-					float lr0 = l*(LIGHT(x-1,y-1,z+1,0) + lr*30 + LIGHT(x,y-1,z+1,0) + LIGHT(x-1,y,z+1,0)) / 5.0f / 15.0f;
-					float lr1 = l*(LIGHT(x+1,y+1,z+1,0) + lr*30 + LIGHT(x,y+1,z+1,0) + LIGHT(x+1,y,z+1,0)) / 5.0f / 15.0f;
-					float lr2 = l*(LIGHT(x-1,y+1,z+1,0) + lr*30 + LIGHT(x,y+1,z+1,0) + LIGHT(x-1,y,z+1,0)) / 5.0f / 15.0f;
-					float lr3 = l*(LIGHT(x+1,y-1,z+1,0) + lr*30 + LIGHT(x,y-1,z+1,0) + LIGHT(x+1,y,z+1,0)) / 5.0f / 15.0f;
+					float lr0 = l*(LIGHT(x-1,y-1,z+1,0) + lr*30 + LIGHT(x,y-1,z+1,0) + LIGHT(x-1,y,z+1,0)) / 5.0f / fRootHeap;
+					float lr1 = l*(LIGHT(x+1,y+1,z+1,0) + lr*30 + LIGHT(x,y+1,z+1,0) + LIGHT(x+1,y,z+1,0)) / 5.0f / fRootHeap;
+					float lr2 = l*(LIGHT(x-1,y+1,z+1,0) + lr*30 + LIGHT(x,y+1,z+1,0) + LIGHT(x-1,y,z+1,0)) / 5.0f / fRootHeap;
+					float lr3 = l*(LIGHT(x+1,y-1,z+1,0) + lr*30 + LIGHT(x,y-1,z+1,0) + LIGHT(x+1,y,z+1,0)) / 5.0f / fRootHeap;
 
-					float lg0 = l*(LIGHT(x-1,y-1,z+1,1) + lg*30 + LIGHT(x,y-1,z+1,1) + LIGHT(x-1,y,z+1,1)) / 5.0f / 15.0f;
-					float lg1 = l*(LIGHT(x+1,y+1,z+1,1) + lg*30 + LIGHT(x,y+1,z+1,1) + LIGHT(x+1,y,z+1,1)) / 5.0f / 15.0f;
-					float lg2 = l*(LIGHT(x-1,y+1,z+1,1) + lg*30 + LIGHT(x,y+1,z+1,1) + LIGHT(x-1,y,z+1,1)) / 5.0f / 15.0f;
-					float lg3 = l*(LIGHT(x+1,y-1,z+1,1) + lg*30 + LIGHT(x,y-1,z+1,1) + LIGHT(x+1,y,z+1,1)) / 5.0f / 15.0f;
+					float lg0 = l*(LIGHT(x-1,y-1,z+1,1) + lg*30 + LIGHT(x,y-1,z+1,1) + LIGHT(x-1,y,z+1,1)) / 5.0f / fRootHeap;
+					float lg1 = l*(LIGHT(x+1,y+1,z+1,1) + lg*30 + LIGHT(x,y+1,z+1,1) + LIGHT(x+1,y,z+1,1)) / 5.0f / fRootHeap;
+					float lg2 = l*(LIGHT(x-1,y+1,z+1,1) + lg*30 + LIGHT(x,y+1,z+1,1) + LIGHT(x-1,y,z+1,1)) / 5.0f / fRootHeap;
+					float lg3 = l*(LIGHT(x+1,y-1,z+1,1) + lg*30 + LIGHT(x,y-1,z+1,1) + LIGHT(x+1,y,z+1,1)) / 5.0f / fRootHeap;
 
-					float lb0 = l*(LIGHT(x-1,y-1,z+1,2) + lb*30 + LIGHT(x,y-1,z+1,2) + LIGHT(x-1,y,z+1,2)) / 5.0f / 15.0f;
-					float lb1 = l*(LIGHT(x+1,y+1,z+1,2) + lb*30 + LIGHT(x,y+1,z+1,2) + LIGHT(x+1,y,z+1,2)) / 5.0f / 15.0f;
-					float lb2 = l*(LIGHT(x-1,y+1,z+1,2) + lb*30 + LIGHT(x,y+1,z+1,2) + LIGHT(x-1,y,z+1,2)) / 5.0f / 15.0f;
-					float lb3 = l*(LIGHT(x+1,y-1,z+1,2) + lb*30 + LIGHT(x,y-1,z+1,2) + LIGHT(x+1,y,z+1,2)) / 5.0f / 15.0f;
+					float lb0 = l*(LIGHT(x-1,y-1,z+1,2) + lb*30 + LIGHT(x,y-1,z+1,2) + LIGHT(x-1,y,z+1,2)) / 5.0f / fRootHeap;
+					float lb1 = l*(LIGHT(x+1,y+1,z+1,2) + lb*30 + LIGHT(x,y+1,z+1,2) + LIGHT(x+1,y,z+1,2)) / 5.0f / fRootHeap;
+					float lb2 = l*(LIGHT(x-1,y+1,z+1,2) + lb*30 + LIGHT(x,y+1,z+1,2) + LIGHT(x-1,y,z+1,2)) / 5.0f / fRootHeap;
+					float lb3 = l*(LIGHT(x+1,y-1,z+1,2) + lb*30 + LIGHT(x,y-1,z+1,2) + LIGHT(x+1,y,z+1,2)) / 5.0f / fRootHeap;
 
-					float ls0 = l*(LIGHT(x-1,y-1,z+1,3) + ls*30 + LIGHT(x,y-1,z+1,3) + LIGHT(x-1,y,z+1,3)) / 5.0f / 15.0f;
-					float ls1 = l*(LIGHT(x+1,y+1,z+1,3) + ls*30 + LIGHT(x,y+1,z+1,3) + LIGHT(x+1,y,z+1,3)) / 5.0f / 15.0f;
-					float ls2 = l*(LIGHT(x-1,y+1,z+1,3) + ls*30 + LIGHT(x,y+1,z+1,3) + LIGHT(x-1,y,z+1,3)) / 5.0f / 15.0f;
-					float ls3 = l*(LIGHT(x+1,y-1,z+1,3) + ls*30 + LIGHT(x,y-1,z+1,3) + LIGHT(x+1,y,z+1,3)) / 5.0f / 15.0f;
+					float ls0 = l*(LIGHT(x-1,y-1,z+1,3) + ls*30 + LIGHT(x,y-1,z+1,3) + LIGHT(x-1,y,z+1,3)) / 5.0f / fRootHeap;
+					float ls1 = l*(LIGHT(x+1,y+1,z+1,3) + ls*30 + LIGHT(x,y+1,z+1,3) + LIGHT(x+1,y,z+1,3)) / 5.0f / fRootHeap;
+					float ls2 = l*(LIGHT(x-1,y+1,z+1,3) + ls*30 + LIGHT(x,y+1,z+1,3) + LIGHT(x-1,y,z+1,3)) / 5.0f / fRootHeap;
+					float ls3 = l*(LIGHT(x+1,y-1,z+1,3) + ls*30 + LIGHT(x,y-1,z+1,3) + LIGHT(x+1,y,z+1,3)) / 5.0f / fRootHeap;
 
 					VERTEX(index, x-0.5f, y-0.5f, z+0.5f, u1,v1, lr0,lg0,lb0,ls0);
 					VERTEX(index, x+0.5f, y+0.5f, z+0.5f, u2,v2, lr1,lg1,lb1,ls1);
@@ -259,30 +261,30 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks){
 
 					SETUP_UV(block->textureFaces[4]);
 
-					float lr = LIGHT(x,y,z-1, 0) / 15.0f;
-					float lg = LIGHT(x,y,z-1, 1) / 15.0f;
-					float lb = LIGHT(x,y,z-1, 2) / 15.0f;
-					float ls = LIGHT(x,y,z-1, 3) / 15.0f;
+					float lr = LIGHT(x,y,z-1, 0) / fRootHeap;
+					float lg = LIGHT(x,y,z-1, 1) / fRootHeap;
+					float lb = LIGHT(x,y,z-1, 2) / fRootHeap;
+					float ls = LIGHT(x,y,z-1, 3) / fRootHeap;
 
-					float lr0 = l*(LIGHT(x-1,y-1,z-1,0) + lr*30 + LIGHT(x,y-1,z-1,0) + LIGHT(x-1,y,z-1,0)) / 5.0f / 15.0f;
-					float lr1 = l*(LIGHT(x-1,y+1,z-1,0) + lr*30 + LIGHT(x,y+1,z-1,0) + LIGHT(x-1,y,z-1,0)) / 5.0f / 15.0f;
-					float lr2 = l*(LIGHT(x+1,y+1,z-1,0) + lr*30 + LIGHT(x,y+1,z-1,0) + LIGHT(x+1,y,z-1,0)) / 5.0f / 15.0f;
-					float lr3 = l*(LIGHT(x+1,y-1,z-1,0) + lr*30 + LIGHT(x,y-1,z-1,0) + LIGHT(x+1,y,z-1,0)) / 5.0f / 15.0f;
+					float lr0 = l*(LIGHT(x-1,y-1,z-1,0) + lr*30 + LIGHT(x,y-1,z-1,0) + LIGHT(x-1,y,z-1,0)) / 5.0f / fRootHeap;
+					float lr1 = l*(LIGHT(x-1,y+1,z-1,0) + lr*30 + LIGHT(x,y+1,z-1,0) + LIGHT(x-1,y,z-1,0)) / 5.0f / fRootHeap;
+					float lr2 = l*(LIGHT(x+1,y+1,z-1,0) + lr*30 + LIGHT(x,y+1,z-1,0) + LIGHT(x+1,y,z-1,0)) / 5.0f / fRootHeap;
+					float lr3 = l*(LIGHT(x+1,y-1,z-1,0) + lr*30 + LIGHT(x,y-1,z-1,0) + LIGHT(x+1,y,z-1,0)) / 5.0f / fRootHeap;
 
-					float lg0 = l*(LIGHT(x-1,y-1,z-1,1) + lg*30 + LIGHT(x,y-1,z-1,1) + LIGHT(x-1,y,z-1,1)) / 5.0f / 15.0f;
-					float lg1 = l*(LIGHT(x-1,y+1,z-1,1) + lg*30 + LIGHT(x,y+1,z-1,1) + LIGHT(x-1,y,z-1,1)) / 5.0f / 15.0f;
-					float lg2 = l*(LIGHT(x+1,y+1,z-1,1) + lg*30 + LIGHT(x,y+1,z-1,1) + LIGHT(x+1,y,z-1,1)) / 5.0f / 15.0f;
-					float lg3 = l*(LIGHT(x+1,y-1,z-1,1) + lg*30 + LIGHT(x,y-1,z-1,1) + LIGHT(x+1,y,z-1,1)) / 5.0f / 15.0f;
+					float lg0 = l*(LIGHT(x-1,y-1,z-1,1) + lg*30 + LIGHT(x,y-1,z-1,1) + LIGHT(x-1,y,z-1,1)) / 5.0f / fRootHeap;
+					float lg1 = l*(LIGHT(x-1,y+1,z-1,1) + lg*30 + LIGHT(x,y+1,z-1,1) + LIGHT(x-1,y,z-1,1)) / 5.0f / fRootHeap;
+					float lg2 = l*(LIGHT(x+1,y+1,z-1,1) + lg*30 + LIGHT(x,y+1,z-1,1) + LIGHT(x+1,y,z-1,1)) / 5.0f / fRootHeap;
+					float lg3 = l*(LIGHT(x+1,y-1,z-1,1) + lg*30 + LIGHT(x,y-1,z-1,1) + LIGHT(x+1,y,z-1,1)) / 5.0f / fRootHeap;
 
-					float lb0 = l*(LIGHT(x-1,y-1,z-1,2) + lb*30 + LIGHT(x,y-1,z-1,2) + LIGHT(x-1,y,z-1,2)) / 5.0f / 15.0f;
-					float lb1 = l*(LIGHT(x-1,y+1,z-1,2) + lb*30 + LIGHT(x,y+1,z-1,2) + LIGHT(x-1,y,z-1,2)) / 5.0f / 15.0f;
-					float lb2 = l*(LIGHT(x+1,y+1,z-1,2) + lb*30 + LIGHT(x,y+1,z-1,2) + LIGHT(x+1,y,z-1,2)) / 5.0f / 15.0f;
-					float lb3 = l*(LIGHT(x+1,y-1,z-1,2) + lb*30 + LIGHT(x,y-1,z-1,2) + LIGHT(x+1,y,z-1,2)) / 5.0f / 15.0f;
+					float lb0 = l*(LIGHT(x-1,y-1,z-1,2) + lb*30 + LIGHT(x,y-1,z-1,2) + LIGHT(x-1,y,z-1,2)) / 5.0f / fRootHeap;
+					float lb1 = l*(LIGHT(x-1,y+1,z-1,2) + lb*30 + LIGHT(x,y+1,z-1,2) + LIGHT(x-1,y,z-1,2)) / 5.0f / fRootHeap;
+					float lb2 = l*(LIGHT(x+1,y+1,z-1,2) + lb*30 + LIGHT(x,y+1,z-1,2) + LIGHT(x+1,y,z-1,2)) / 5.0f / fRootHeap;
+					float lb3 = l*(LIGHT(x+1,y-1,z-1,2) + lb*30 + LIGHT(x,y-1,z-1,2) + LIGHT(x+1,y,z-1,2)) / 5.0f / fRootHeap;
 
-					float ls0 = l*(LIGHT(x-1,y-1,z-1,3) + ls*30 + LIGHT(x,y-1,z-1,3) + LIGHT(x-1,y,z-1,3)) / 5.0f / 15.0f;
-					float ls1 = l*(LIGHT(x-1,y+1,z-1,3) + ls*30 + LIGHT(x,y+1,z-1,3) + LIGHT(x-1,y,z-1,3)) / 5.0f / 15.0f;
-					float ls2 = l*(LIGHT(x+1,y+1,z-1,3) + ls*30 + LIGHT(x,y+1,z-1,3) + LIGHT(x+1,y,z-1,3)) / 5.0f / 15.0f;
-					float ls3 = l*(LIGHT(x+1,y-1,z-1,3) + ls*30 + LIGHT(x,y-1,z-1,3) + LIGHT(x+1,y,z-1,3)) / 5.0f / 15.0f;
+					float ls0 = l*(LIGHT(x-1,y-1,z-1,3) + ls*30 + LIGHT(x,y-1,z-1,3) + LIGHT(x-1,y,z-1,3)) / 5.0f / fRootHeap;
+					float ls1 = l*(LIGHT(x-1,y+1,z-1,3) + ls*30 + LIGHT(x,y+1,z-1,3) + LIGHT(x-1,y,z-1,3)) / 5.0f / fRootHeap;
+					float ls2 = l*(LIGHT(x+1,y+1,z-1,3) + ls*30 + LIGHT(x,y+1,z-1,3) + LIGHT(x+1,y,z-1,3)) / 5.0f / fRootHeap;
+					float ls3 = l*(LIGHT(x+1,y-1,z-1,3) + ls*30 + LIGHT(x,y-1,z-1,3) + LIGHT(x+1,y,z-1,3)) / 5.0f / fRootHeap;
 
 					VERTEX(index, x-0.5f, y-0.5f, z-0.5f, u2,v1, lr0,lg0,lb0,ls0);
 					VERTEX(index, x-0.5f, y+0.5f, z-0.5f, u2,v2, lr1,lg1,lb1,ls1);

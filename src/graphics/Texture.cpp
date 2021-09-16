@@ -23,6 +23,10 @@ void Texture::bind(){
 	glBindTexture(GL_TEXTURE_2D, id);
 }
 
+void Texture::bindCubeMap(){
+	glBindTexture(GL_TEXTURE_CUBE_MAP, id);
+}
+
 void Texture::reload(unsigned char* data){
 	glBindTexture(GL_TEXTURE_2D, id);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,

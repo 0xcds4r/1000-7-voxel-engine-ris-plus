@@ -1,13 +1,21 @@
 #include "PhysicsSolver.h"
 #include "Hitbox.h"
 #include "../voxels/Chunks.h"
+#include "../window/Events.h"
+#include "../window/Camera.h"
+#include "../gui/chat.h"
 
 #include <iostream>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 #define E 0.01
+extern Camera* camera;
 
 PhysicsSolver::PhysicsSolver(vec3 gravity) : gravity(gravity) {
 }
+
+bool bFlyEnabled = false;
 
 void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned substeps, bool shifting) {
 	for (unsigned i = 0; i < substeps; i++){
@@ -21,6 +29,27 @@ void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned s
 
 		float px = pos.x;
 		float pz = pos.z;
+
+		if(bFlyEnabled)
+		{
+			vec3 vecCam = camera->findDirent();
+
+			if(Events::pressed(GLFW_KEY_SPACE) && !chat::isActive()) {
+				pos.y += 0.4f;
+			}
+		
+			if(Events::pressed(GLFW_KEY_LEFT_SHIFT) && !chat::isActive()) {
+				pos.y -= 0.4f;
+			}
+
+			if(Events::pressed(GLFW_KEY_W) && !chat::isActive()) 
+			{
+				pos.x += vecCam.x;
+				pos.z += vecCam.z;
+			}
+
+			return;
+		}
 
 		if (vel.x < 0.0){
 			for (int y = floor(pos.y-half.y+E); y <= floor(pos.y+half.y-E); y++){
@@ -78,7 +107,9 @@ void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned s
 			for (int x = floor(pos.x-half.x+E); x <= floor(pos.x+half.x-E); x++){
 				for (int z = floor(pos.z-half.z+E); z <= floor(pos.z+half.z-E); z++){
 					int y = floor(pos.y-half.y-E);
-					if (chunks->isObstacle(x,y,z)){
+
+					if (chunks->isObstacle(x,y,z))
+					{
 						vel.y *= 0.0;
 						pos.y = y + 1 + half.y;
 						int f = 18.0;
@@ -90,11 +121,14 @@ void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned s
 				}
 			}
 		}
-		if (vel.y > 0.0){
+		if (vel.y > 0.0)
+		{
 			for (int x = floor(pos.x-half.x+E); x <= floor(pos.x+half.x-E); x++){
 				for (int z = floor(pos.z-half.z+E); z <= floor(pos.z+half.z-E); z++){
 					int y = floor(pos.y+half.y+E);
-					if (chunks->isObstacle(x,y,z)){
+
+					if (chunks->isObstacle(x,y,z))
+					{
 						vel.y *= 0.0;
 						pos.y = y - half.y - E;
 						break;
